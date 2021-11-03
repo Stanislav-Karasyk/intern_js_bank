@@ -205,8 +205,7 @@ class Bank {
 
     for (let client of this.clients) {
       for (let account of client.accounts) {
-        if (client.isActive === isActive) {
-          if (account.usedCreditFunds) {
+        if (client.isActive === isActive && account.usedCreditFunds) {
             res.debtors++;
             if (account.currency === finalСгrrency) {
               res.sumDebt += account.usedCreditFunds;
@@ -217,7 +216,6 @@ class Bank {
                 finalСгrrency,
                 account.usedCreditFunds
               );
-            }
           }
         }
       }
@@ -237,6 +235,4 @@ class Bank {
   }
 }
 const bank = new Bank(clients);
-
-
 

@@ -5,7 +5,6 @@ class Bank {
     this.bank = document.querySelector(".bank");
     this.clientId = 4;
     this.accountId = 4;
-    this.oldClient;
     this.render();
   }
 
@@ -21,9 +20,6 @@ class Bank {
 
     let clientsList = this.bank.appendChild(document.createElement("ul"));
 
-    let form = document.querySelector(".form");
-    form.addEventListener("submit", this.handleSubmitForm.bind(this, form));
-
     clientsList.addEventListener("click", this.handleClick);
 
     this.showClientsList(clientsList);
@@ -31,13 +27,12 @@ class Bank {
 
   handleSubmitForm(form, event) {
     event.preventDefault();
-    if (document.querySelector(".form")) {
-      document.querySelector(".form").remove();
-    }
+
     let formData = new FormData(form);
     this.addClient(formData);
     this.addAccount(formData);
-    form.remove();
+
+    this.render();
   }
 
   handleClick(event) {
@@ -62,16 +57,10 @@ class Bank {
     }
 
     if (event.target.dataset.action === "edit") {
-      if (document.querySelector(".form")) {
-        document.querySelector(".form").remove();
-      }
-      if (document.querySelector(".editForm")) {
-        document.querySelector(".editForm").remove();
-      }
-
-      clients.forEach((client) => {
+      clients.forEach((client, indexClient, arr) => {
         if (client.id === selectedClientId) {
-          newBank.editsClient(client);
+          newBank.showForm(client);
+          arr.splice(indexClient, 1);
         }
       });
     }
@@ -85,85 +74,65 @@ class Bank {
     }
   }
 
-  handleSubmitEditForm(editForm, event) {
-    event.preventDefault();
-
-    let formData = new FormData(editForm);
-
-    this.addClient(formData);
-    this.addAccount(formData);
-
-    if (document.querySelector(".form")) {
-      document.querySelector(".form").remove();
-    }
-    if (document.querySelector("ul")) {
-      document.querySelector("ul").remove();
-    }
-
-    editForm.remove();
-
-    clients.forEach((client, indexClient, arr) => {
-      if (client.id === this.oldClient) {
-        arr.splice(indexClient, 1);
-      }
-    });
-
-    this.render();
-  }
-
-  showForm(templateClient) {
-    let template = ``;
-    if (templateClient) {
-      template = templateClient;
-    } else {
-      template = `<form class="form">
-      <fieldset>
-        <legend>Add client</legend>
+  showForm(сlient) {
+    let template = `<form class="form">
+    <fieldset>
+      <legend>${сlient ? "Edit client" : "Add client"}</legend>
+      <label>
+        Name
+        <input type="text" name="name" value="${сlient ? сlient.name : ""}"/>
+      </label>
+      <label>
+        Surname
+        <input type="text" name="surname" 
+        value="${сlient ? сlient.surname : ""}"/>
+      </label>
+      <label>
+       Is active
+        <select name="isActive">
+          <option value="${сlient ? сlient.isActive : "true"}">
+            ${сlient ? сlient.isActive : "true"}
+          </option>
+          <option value="true">true</option>
+          <option value="false">false</option>
+        </select>
+      </label>
         <label>
-          Name
-          <input type="text" name="name" />
-        </label>
-        <label>
-          Surname
-          <input type="text" name="surname" />
-        </label>
-        <label>
-         Is active
-          <select name="isActive">
-            <option value="true">true</option>
-            <option value="false">false</option>
+          Type account
+          <select name="type">
+            <option value="debit">debit</option>
+            <option value="credit">credit</option>
           </select>
         </label>
-          <label>
-            Type account
-            <select name="type">
-              <option value="debit">debit</option>
-              <option value="credit">credit</option>
-            </select>
-          </label>
-          <label>
-            Currency
-            <select name="currency">
-              <option value="UAH">UAH</option>
-              <option value="USD">USD</option>
-              <option value="EUR">EUR</option>
-              <option value="RUR">RUR</option>
-            </select>
-          </label>
-          <label>
-            Balance
-            <input type="number" name="balance" />
-          </label>
-          <label>
-            Credit limit
-            <input type="number" name="creditLimit" />
-          </label>
-        <button type="submit">Add</button>
-      </fieldset>
-    </form>`;
+        <label>
+          Currency
+          <select name="currency">
+            <option value="UAH">UAH</option>
+            <option value="USD">USD</option>
+            <option value="EUR">EUR</option>
+            <option value="RUR">RUR</option>
+          </select>
+        </label>
+        <label>
+          Balance
+          <input type="number" name="balance" />
+        </label>
+        <label>
+          Credit limit
+          <input type="number" name="creditLimit" />
+        </label>
+      <button type="submit">${сlient ? "Edit" : "Add"}</button>
+    </fieldset>
+  </form>`;
+
+  if (document.querySelector(".form")) {
+      document.querySelector(".form").remove();
     }
 
     this.bank.insertAdjacentHTML("afterbegin", template);
+    
+    let form = document.querySelector(".form");
+    form.addEventListener("submit", this.handleSubmitForm.bind(this, form));
   }
 
   showClientsList(clientsList) {
@@ -208,65 +177,6 @@ class Bank {
         });
       }
     });
-  }
-
-  editsClient(client) {
-    this.oldClient = client.id;
-
-    let templateClient = `<form class="editForm">
-    <fieldset>
-      <legend>Edit client</legend>
-      <label>
-        Name
-        <input type="text" name="name" value="${client.name}" />
-      </label>
-      <label>
-        Surname
-        <input type="text" name="surname" value="${client.surname}" />
-      </label>
-      <label>
-       Is active
-        <select name="isActive">
-          <option value="${client.isActive}">${client.isActive}</option>
-          <option value="true">true</option>
-          <option value="false">false</option>
-        </select>
-      </label>
-        <label>
-          Type account
-          <select name="type">
-            <option value="debit">debit</option>
-            <option value="credit">credit</option>
-          </select>
-        </label>
-        <label>
-          Currency
-          <select name="currency">
-            <option value="UAH">UAH</option>
-            <option value="USD">USD</option>
-            <option value="EUR">EUR</option>
-            <option value="RUR">RUR</option>
-          </select>
-        </label>
-        <label>
-          Balance
-          <input type="number" name="balance" />
-        </label>
-        <label>
-          Credit limit
-          <input type="number" name="creditLimit" />
-        </label>
-      <button type="submit">Edit</button>
-    </fieldset>
-  </form>`;
-
-    newBank.showForm(templateClient);
-
-    let editForm = document.querySelector(".editForm");
-    editForm.addEventListener(
-      "submit",
-      this.handleSubmitEditForm.bind(this, editForm)
-    );
   }
 
   addClient(formData) {
